@@ -18,14 +18,26 @@ export default function App() {
     setError(null)
     try {
       if (refresh) {
-        const r = await fetch(apiUrl('/api/refresh'), { method: 'POST' })
-        if (!r.ok) throw new Error()
+        let token = sessionStorage.getItem('adminToken')
+        if (!token) {
+          token = window.prompt('Masukkan admin token untuk menarik ulang data:')
+          if (!token) return
+          sessionStorage.setItem('adminToken', token)
+        }
+        const r = await fetch(apiUrl('/api/refresh'), { method: 'POST', headers: { 'X-Admin-Token': token } })
+        if (r.status === 403) {
+          sessionStorage.removeItem('adminToken')
+          throw new Error('Token admin salah. Coba tarik ulang lagi dan masukkan token yang benar.')
+        }
+        if (!r.ok) throw new Error(`Tarik ulang gagal (status ${r.status}).`)
       }
       const r = await fetch(apiUrl('/api/watchlist'))
-      if (!r.ok) throw new Error()
+      if (!r.ok) throw new Error(`Server membalas status ${r.status}.`)
       setData(await r.json())
-    } catch {
-      setError('Data belum bisa dimuat. Pastikan API jalan di port 8000, lalu coba lagi.')
+    } catch (e) {
+      setError(e.message === 'Failed to fetch'
+        ? 'Tidak bisa terhubung ke server. Cek koneksi, atau server mungkin sedang bangun (free tier bisa butuh satu menit).'
+        : e.message || 'Data belum bisa dimuat. Coba lagi sebentar lagi.')
     } finally {
       setLoading(false)
     }

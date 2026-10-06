@@ -17,7 +17,6 @@ class SectorsAPIError(Exception):
         self.url = url
         super().__init__(f"[{status_code}] {message} ({url})")
 
-
 class SectorsClient:
     def __init__(self, api_key=None, timeout=15):
         self.api_key = api_key or os.getenv("SECTORS_API_KEY")
