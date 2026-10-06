@@ -27,14 +27,14 @@ class SectorsClient:
         self.session = requests.Session()
         self.session.headers.update({"Authorization": self.api_key})
 
-    def _get(self, path, params=None, retries=2):
+    def _get(self, path, params=None, retries=4):
         url = f"{BASE_URL}{path}"
         last_err = None
         for attempt in range(retries + 1):
             try:
                 resp = self.session.get(url, params=params, timeout=self.timeout)
                 if resp.status_code == 429 and attempt < retries:
-                    time.sleep(1.5 * (attempt + 1))
+                    time.sleep(2 ** (attempt + 1))
                     continue
                 if not resp.ok:
                     raise SectorsAPIError(resp.status_code, resp.text[:300], url)
@@ -72,5 +72,5 @@ class SectorsClient:
     def top_changes(self, classifications="top_gainers,top_losers", periods="7d", n_stock=5):
         return self._get("/companies/top-changes/", params={"classifications": classifications, "periods": periods, "n_stock": n_stock})
 
-    def most_traded(self, n_stock=10, periods="7d"):
-        return self._get("/most-traded/", params={"n_stock": n_stock, "periods": periods})
+    def most_traded(self, n_stock=10):
+        return self._get("/most-traded/", params={"n_stock": n_stock})

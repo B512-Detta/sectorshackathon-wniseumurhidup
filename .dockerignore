@@ -1,0 +1,8 @@
+.venv
+.env
+web
+notebooks
+data
+tests
+app.py
+**/__pycache__
