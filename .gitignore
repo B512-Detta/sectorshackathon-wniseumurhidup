@@ -3,4 +3,7 @@ __pycache__/
 *.pyc
 data/*.db
 data/cache/
+.venv/.env
+data/sectors.db
+__pycache__/
 .venv/
